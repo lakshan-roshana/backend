@@ -1,6 +1,6 @@
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using SimpleCrudApi.Models;
-using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,6 +10,7 @@ namespace SimpleCrudApi.Services
     {
         private readonly IMongoCollection<Item> _items;
 
+        // Constructor should accept IOptions<DatabaseSettings>
         public ItemService(IOptions<DatabaseSettings> dbSettings)
         {
             var client = new MongoClient(dbSettings.Value.ConnectionString);
@@ -17,19 +18,19 @@ namespace SimpleCrudApi.Services
             _items = database.GetCollection<Item>(dbSettings.Value.CollectionName);
         }
 
-        public async Task<List<Item>> GetAllAsync() => 
+        public async Task<List<Item>> GetAllAsync() =>
             await _items.Find(_ => true).ToListAsync();
 
-        public async Task<Item> GetAsync(string id) => 
+        public async Task<Item> GetAsync(string id) =>
             await _items.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-        public async Task CreateAsync(Item item) => 
+        public async Task CreateAsync(Item item) =>
             await _items.InsertOneAsync(item);
 
-        public async Task UpdateAsync(string id, Item item) => 
+        public async Task UpdateAsync(string id, Item item) =>
             await _items.ReplaceOneAsync(x => x.Id == id, item);
 
-        public async Task DeleteAsync(string id) => 
+        public async Task DeleteAsync(string id) =>
             await _items.DeleteOneAsync(x => x.Id == id);
     }
 }

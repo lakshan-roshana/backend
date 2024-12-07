@@ -1,17 +1,20 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using SimpleCrudApi.Models;
 using SimpleCrudApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers(); // Add controllers for API routes
-builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("DatabaseSettings"));
+builder.Services.AddControllers();
+
+// Register DatabaseSettings to load configuration from appsettings.json
+builder.Services.Configure<DatabaseSettings>(
+    builder.Configuration.GetSection("DatabaseSettings"));
+
+// Register ItemService as a singleton (according to request if needed)
 builder.Services.AddSingleton<ItemService>();
 
-// Optional: Configure Swagger for API documentation
+// Optional: Add Swagger for API documentation (if needed)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -26,7 +29,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Map controllers (this will map API routes from the controller classes)
+// Map controllers (to handle API requests)
 app.MapControllers();
 
 app.Run();
