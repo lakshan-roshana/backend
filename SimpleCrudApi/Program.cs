@@ -11,12 +11,23 @@ builder.Services.AddControllers();
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("DatabaseSettings"));
 
-// Register ItemService as a singleton (according to request if needed)
+// Register ItemService as a singleton
 builder.Services.AddSingleton<ItemService>();
 
-// Optional: Add Swagger for API documentation (if needed)
+// Optional: Add Swagger for API documentation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200") // Update this if the frontend origin changes
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -27,9 +38,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Enable the defined CORS policy
+app.UseCors("AllowAngularApp");
+
 app.UseHttpsRedirection();
 
-// Map controllers (to handle API requests)
+// Map controllers to handle API requests
 app.MapControllers();
 
 app.Run();
